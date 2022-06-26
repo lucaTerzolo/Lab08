@@ -91,4 +91,32 @@ public class ExtFlightDelaysDAO {
 			throw new RuntimeException("Error Connection Database");
 		}
 	}
+	
+	public boolean isAirportConnected(Integer distance, Airport airport1, Airport airport2,
+			Integer avgDistance) {
+		String sql="Select avg(distance) as distanzaMedia "+
+				"From flights "+
+				"where (ORIGIN_AIRPORT_ID=? and DESTINATION_AIRPORT_ID=?) "+
+				"OR (ORIGIN_AIRPORT_ID=? and DESTINATION_AIRPORT_ID=?) ";
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, airport1.getId());
+			st.setInt(2, airport2.getId());
+			st.setInt(3, airport2.getId());
+			st.setInt(4, airport1.getId());
+			ResultSet rs = st.executeQuery();
+
+			rs.first();
+			avgDistance=rs.getInt("distanzaMedia");
+			conn.close();
+			return avgDistance>distance;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+		
+	}
 }
